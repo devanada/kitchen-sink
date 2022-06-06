@@ -55,8 +55,16 @@ export const userLogin = async (req: Request, res: Response) => {
   try {
     const { email, password }: bodyType = req.body;
 
-    if (!(email && password)) {
-      res.status(400).json({ code: 400, message: "All input is required" });
+    if (!email && !password) {
+      return res
+        .status(400)
+        .json({ code: 400, message: "All input is required" });
+    } else if (!email && password) {
+      return res.status(400).json({ code: 400, message: "Email is required" });
+    } else if (email && !password) {
+      return res
+        .status(400)
+        .json({ code: 400, message: "Password is required" });
     }
 
     const user = await User.findOne({ email }).select("+password");
@@ -77,8 +85,10 @@ export const userLogin = async (req: Request, res: Response) => {
         message: "Login successfully",
         data: { token: user.token },
       });
+    } else if (user && !(await bcrypt.compare(password, user.password))) {
+      return res.status(400).json({ code: 400, message: "Invalid password" });
     }
-    return res.status(400).json({ code: 400, message: "Invalid Credentials" });
+    return res.status(400).json({ code: 400, message: "Invalid credential" });
   } catch (err: any) {
     return res.status(500).json({ code: 500, message: err.message });
   }
