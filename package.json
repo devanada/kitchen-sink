@@ -8,7 +8,9 @@
     "build": "tsc",
     "serve": "nodemon ./build/index.js",
     "dev": "nodemon ./src/index.ts",
-    "start": "ts-node ./src/index.ts"
+    "start-ts": "ts-node ./src/index.ts",
+    "start": "vercel dev",
+    "deploy": "vercel deploy --prod"
   },
   "keywords": [
     "node.js",
@@ -29,7 +31,8 @@
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.3.3"
+    "mongoose": "^6.3.3",
+    "vercel": "^25.1.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
