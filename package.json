@@ -7,10 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "serve": "nodemon ./build/index.js",
-    "dev": "nodemon ./src/index.ts",
-    "start-ts": "ts-node ./src/index.ts",
-    "start": "vercel dev",
-    "deploy": "vercel deploy --prod"
+    "start": "ts-node ./src/index.ts",
+    "dev": "nodemon ./src/index.ts"
   },
   "keywords": [
     "node.js",
