@@ -5,6 +5,8 @@ import { Request, Response } from "express";
 import User from "../model/user";
 import { bodyType } from "../types/user.type";
 
+const cloudinary = require("../config/cloudinary");
+
 export const userSignup = async (req: Request, res: Response) => {
   try {
     const { first_name, last_name, email, password }: bodyType = req.body;
@@ -97,7 +99,7 @@ export const userLogin = async (req: Request, res: Response) => {
 export const userGet = async (req: Request, res: Response) => {
   try {
     const { user_id } = req.token;
-    const user = await User.findOne({ user_id });
+    const user = await User.findById({ _id: user_id });
     if (user) {
       return res
         .status(200)
@@ -110,31 +112,39 @@ export const userGet = async (req: Request, res: Response) => {
   }
 };
 
-export const userUpdate = async (req: Request, res: Response) => {
+export const userUpdate = async (req: any, res: Response) => {
   try {
-    const { user_id } = req.token,
-      { first_name, last_name, email, password, image } = req.body,
-      encryptedPassword = await bcrypt.hash(password, 10);
+    const { user_id } = req.token;
+    const { email, password } = req.body;
+    let encryptedPassword = "";
+    if (password) encryptedPassword = await bcrypt.hash(password, 10);
+    let temp: any = {};
+    for (const key in req.body) {
+      if (key === "password") temp[key] = encryptedPassword;
+      else if (key === "email") temp[key] = email.toLowerCase();
+      else temp[key] = req.body[key];
+    }
+    if (req.file) {
+      const { path } = req.file;
+      const uploader = async (path: any) =>
+        await cloudinary.uploads(path, "kitchen-sink");
+      const newPath = await uploader(path);
+      temp.image = newPath.url;
+    }
 
-    const user = await User.findOneAndUpdate(
-      { user_id },
-      {
-        first_name,
-        last_name,
-        email: email.toLowerCase(),
-        password: encryptedPassword,
-        image,
-      },
-      { new: true }
-    );
+    const user = await User.findByIdAndUpdate({ _id: user_id }, temp, {
+      new: true,
+    });
     if (user) {
-      return res
-        .status(200)
-        .json({ code: 200, message: "User updated successfully", data: user });
+      return res.status(200).json({
+        code: 200,
+        message: "User updated successfully",
+        data: user,
+      });
     } else {
       return res
-        .status(404)
-        .json({ code: 404, message: "Failed to update user" });
+        .status(400)
+        .json({ code: 400, message: "Failed to update user" });
     }
   } catch (err: any) {
     return res.status(500).json({ code: 500, message: err.message });
@@ -152,8 +162,8 @@ export const userDelete = async (req: Request, res: Response) => {
         .json({ code: 200, message: "User deleted successfully", data: user });
     } else {
       return res
-        .status(404)
-        .json({ code: 404, message: "Failed to delete user, user not found" });
+        .status(400)
+        .json({ code: 400, message: "Failed to delete user, user not found" });
     }
   } catch (err: any) {
     return res.status(500).json({ code: 500, message: err.message });

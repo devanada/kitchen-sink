@@ -12,6 +12,8 @@ import {
   userDelete,
 } from "./controllers/user.controller";
 
+const upload = require("./config/multer");
+
 const app = express();
 var corsOptions = {
   origin: "*",
@@ -27,7 +29,7 @@ app.post("/api/v1/login", userLogin);
 app
   .route("/api/v1/profile")
   .get(auth, userGet)
-  .put(auth, userUpdate)
+  .put(auth, upload.single("image"), userUpdate)
   .delete(auth, userDelete);
 
 export default app;
