@@ -10,7 +10,7 @@ module.exports.uploads = (file: any, folder: any) => {
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload(
       file,
-      { resource_type: "auto", folder: folder },
+      { resource_type: "auto", folder },
       (error: any, result: any) => {
         if (error) {
           reject({ status: "error", message: error.message });

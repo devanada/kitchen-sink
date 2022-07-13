@@ -1,18 +1,16 @@
-const multer = require("multer");
+import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
+import { Request } from "express";
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
-const storage = multer.diskStorage({
-  destination: (req: any, file: any, cb: any) => {
-    cb(null, "./uploads/");
-  },
-  filename: (req: any, file: any, cb: any) => {
-    cb(
-      null,
-      new Date().toISOString().replace(/:/g, "-") + "-" + file.originalname
-    );
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "DEV",
   },
 });
 
-const fileFilter = (req: any, file: any, cb: any) => {
+const fileFilter = (req: Request, file: Express.Multer.File, cb: any) => {
   if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
     cb(null, true);
   } else {
@@ -21,9 +19,9 @@ const fileFilter = (req: any, file: any, cb: any) => {
 };
 
 const upload = multer({
-  storage: storage,
+  storage,
   limits: { fileSize: 1024 * 1024 },
-  fileFilter: fileFilter,
+  fileFilter,
 });
 
 module.exports = upload;
