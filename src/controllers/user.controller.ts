@@ -46,8 +46,8 @@ export const userSignup = async (req: Request, res: Response) => {
     user.token = token;
 
     return res
-      .status(201)
-      .json({ code: 201, message: "User registered", data: user });
+      .status(200)
+      .json({ code: 200, message: "User registered", data: user });
   } catch (err: any) {
     return res.status(500).json({ code: 500, message: err.message });
   }
